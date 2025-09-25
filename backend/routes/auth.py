@@ -20,8 +20,22 @@ if not firebase_admin._apps:
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+from pydantic import BaseModel
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
 @router.post("/register", response_model=dict)
-async def register_user(email: str, password: str, full_name: str, db: Session = Depends(get_db)):
+async def register_user(request: RegisterRequest, db: Session = Depends(get_db)):
+    email = request.email
+    password = request.password
+    full_name = request.full_name
     # Check if user exists
     db_user = db.query(User).filter(User.email == email).first()
     if db_user:
@@ -52,17 +66,17 @@ async def register_user(email: str, password: str, full_name: str, db: Session =
     return {"message": "User registered successfully", "user_id": db_user.id}
 
 @router.post("/login", response_model=dict)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(request: LoginRequest, db: Session = Depends(get_db)):
     # Authenticate with Firebase
     try:
-        firebase_user = auth.get_user_by_email(form_data.username)
+        firebase_user = auth.get_user_by_email(request.email)
         # For simplicity, we'll use Firebase token verification
         # In production, implement proper Firebase token verification
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     # Get local user
-    db_user = db.query(User).filter(User.email == form_data.username).first()
+    db_user = db.query(User).filter(User.email == request.email).first()
     if not db_user:
         raise HTTPException(status_code=400, detail="User not found")
 

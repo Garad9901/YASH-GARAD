@@ -7,7 +7,7 @@ import os
 
 from .database import get_db, engine
 from .models import Base
-from .routes import auth, quizzes, learning, analytics
+from .routes import auth, quizzes, learning, analytics, ai
 from .config import settings
 
 # Create database tables
@@ -36,6 +36,7 @@ app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(quizzes.router, prefix="/quizzes", tags=["quizzes"])
 app.include_router(learning.router, prefix="/learning", tags=["learning"])
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+app.include_router(ai.router, prefix="/ai", tags=["ai"])
 
 @app.get("/")
 async def root():

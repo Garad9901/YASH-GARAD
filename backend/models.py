@@ -127,7 +127,7 @@ class UserLearningPath(Base):
     user = relationship("User", back_populates="learning_paths")
     learning_path = relationship("LearningPath")
 
-class Certificate(Base):
+class  Certificate(Base):
     __tablename__ = "certificates"
 
     id = Column(Integer, primary_key=True, index=True)

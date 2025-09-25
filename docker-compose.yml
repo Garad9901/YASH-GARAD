@@ -4,28 +4,34 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "5000:5000"
     environment:
-      - ENVIRONMENT=development
-      - DATABASE_URL=postgresql://user:password@db:5432/ai_edu_db
-      - FIREBASE_CREDENTIALS_PATH=/app/firebase-credentials.json
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/ai_edu_platform
+      - JWT_SECRET=your-super-secret-jwt-key-here
+      - REFRESH_TOKEN_SECRET=your-super-secret-refresh-key-here
+      - OPENAI_API_KEY=your-openai-api-key
+      - JUDGE0_API_URL=https://api.judge0.com
+      - FIREBASE_PROJECT_ID=your-firebase-project-id
+      - SENDGRID_API_KEY=your-sendgrid-api-key
+      - TWILIO_ACCOUNT_SID=your-twilio-sid
+      - TWILIO_AUTH_TOKEN=your-twilio-token
+      - TWILIO_PHONE_NUMBER=your-twilio-number
     volumes:
       - ./backend:/app
-      - ./firebase-credentials.json:/app/firebase-credentials.json
+      - /app/node_modules
     depends_on:
-      - db
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      - mongodb
+    command: npm run dev
 
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=ai_edu_db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+  mongodb:
+    image: mongo:7-jammy
     ports:
-      - "5432:5432"
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=ai_edu_platform
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
 
   redis:
     image: redis:7-alpine
@@ -35,5 +41,5 @@ services:
       - redis_data:/data
 
 volumes:
-  postgres_data:
+  mongodb_data:
   redis_data:
